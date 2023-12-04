@@ -11,14 +11,19 @@ function List() {
             try {
                 const querySnapshot = await getDocs(collection(db, "user"));
                 const documents = querySnapshot.docs.map((doc) => ({
-                    id: doc.id, // Get the document ID
+                    id: doc.id,
                     ...doc.data(),
                 }));
-                setData(documents);
+
+                // Sorting the documents based on the 'sequence' field
+                const sortedDocuments = documents.sort((a, b) => a.sequence - b.sequence);
+
+                setData(sortedDocuments);
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
         }
+
         fetchData();
     }, []);
 
@@ -32,24 +37,18 @@ function List() {
         // Update state to reflect the new order
         setData(items);
 
-        // Map the updated order to an array of IDs
-        const updatedOrder = items.map((item) => item.id);
-
         try {
-            // Update the database with the new order
-            if (data.length > 0) {
-                await updateDoc(doc(db, "user", data[0].id), {
-                    order: updatedOrder,
-                    
-                });
-                console.log("updated");
-            } else {
-                console.error("No data available to update in the database.");
+            for (let i = 0; i < items.length; i++) {
+                const docRef = doc(db, "user", items[i].id); // Assuming "id" is the unique identifier for your documents
+                await updateDoc(docRef, { sequence: i }); // Updating a field called "sequence" with the new index
             }
+
+            console.log("Firestore updated successfully!");
         } catch (error) {
-            console.error("Error updating order in database:", error);
+            console.error("Error updating Firestore:", error);
         }
     };
+
     return (
         <div className="mx-auto container">
             <div className="w-[80%] ">
