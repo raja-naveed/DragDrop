@@ -19,6 +19,7 @@ function List() {
                 const sortedDocuments = documents.sort((a, b) => a.sequence - b.sequence);
 
                 setData(sortedDocuments);
+
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
@@ -26,6 +27,8 @@ function List() {
 
         fetchData();
     }, []);
+    console.log("Firestore before !",data );
+
 
     const onDragEnd = async (result) => {
         if (!result.destination) return;
@@ -43,7 +46,7 @@ function List() {
                 await updateDoc(docRef, { sequence: i }); // Updating a field called "sequence" with the new index
             }
 
-            console.log("Firestore updated successfully!");
+            console.log("Firestore updated successfully!",data );
         } catch (error) {
             console.error("Error updating Firestore:", error);
         }
